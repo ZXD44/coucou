@@ -1,0 +1,26 @@
+name: Sync with Upstream
+
+on:
+  schedule:
+    # รันอัตโนมัติทุกวัน เวลา 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch: # เปิดให้กดสั่งซิงค์เองได้ตลอดเวลาผ่านแท็บ Actions
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Sync upstream changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/Louis-CFM/coucou.git
+          git fetch upstream main
+          git checkout main
+          git merge upstream/main --ff-only || (git merge upstream/main -m "chore: auto-sync from upstream" && git push origin main)
